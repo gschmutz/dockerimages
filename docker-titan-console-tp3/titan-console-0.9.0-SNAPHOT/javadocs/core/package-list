@@ -1,0 +1,11 @@
+com.tinkerpop.gremlin.driver
+com.tinkerpop.gremlin.process
+com.tinkerpop.gremlin.process.computer
+com.tinkerpop.gremlin.process.graph
+com.tinkerpop.gremlin.process.util
+com.tinkerpop.gremlin.structure
+com.tinkerpop.gremlin.structure.io
+com.tinkerpop.gremlin.structure.io.graphml
+com.tinkerpop.gremlin.structure.io.graphson
+com.tinkerpop.gremlin.structure.io.kryo
+com.tinkerpop.gremlin.structure.strategy
