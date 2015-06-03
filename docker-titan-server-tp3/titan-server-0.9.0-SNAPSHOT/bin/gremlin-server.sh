@@ -1,31 +1,15 @@
 #!/bin/bash
-#
-#
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
-#
+
 case `uname` in
   CYGWIN*)
     CP="`dirname $0`"/../config/
     CP="$CP":$( echo `dirname $0`/../lib/*.jar . | sed 's/ /;/g')
+    CP="$CP":$( echo `dirname $0`/../ext/*.jar . | sed 's/ /;/g')
     ;;
   *)
     CP="`dirname $0`"/../config/
     CP="$CP":$( echo `dirname $0`/../lib/*.jar . | sed 's/ /:/g')
+    CP="$CP":$( echo `dirname $0`/../ext/*.jar . | sed 's/ /;/g')
 esac
 #echo $CP
 
@@ -36,10 +20,8 @@ while [ -h "$SOURCE" ]; do
   [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
 done
 DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
-CP=$CP:$( find -L "$DIR"/../ext -mindepth 1 -maxdepth 1 -type d | \
-          sort | sed 's/$/\/plugin\/*/' | tr '\n' ':' )
+CP=$CP:$(find -L $DIR/../ext/ -name "*.jar" | tr '\n' ':')
 
-echo $CP
 export CLASSPATH="${CLASSPATH:-}:$CP"
 
 # Find Java
@@ -57,7 +39,7 @@ fi
 # Execute the application and return its exit code
 if [ "$1" = "-i" ]; then
   shift
-  exec $JAVA -Dlog4j.configuration=conf/log4j-server.properties $JAVA_OPTIONS -cp $CP:$CLASSPATH org.apache.tinkerpop.gremlin.server.util.GremlinServerInstall "$@"
+  exec $JAVA -Dlog4j.configuration=conf/log4j-server.properties $JAVA_OPTIONS -cp $CP:$CLASSPATH com.tinkerpop.gremlin.server.util.GremlinServerInstall "$@"
 else
-  exec $JAVA -Dlog4j.configuration=conf/log4j-server.properties $JAVA_OPTIONS -cp $CP:$CLASSPATH org.apache.tinkerpop.gremlin.server.GremlinServer "$@"
+  exec $JAVA -Dlog4j.configuration=conf/log4j-server.properties $JAVA_OPTIONS -cp $CP:$CLASSPATH com.tinkerpop.gremlin.server.GremlinServer "$@"
 fi
