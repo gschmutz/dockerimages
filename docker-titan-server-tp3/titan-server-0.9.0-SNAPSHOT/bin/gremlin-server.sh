@@ -27,7 +27,7 @@ case `uname` in
     CP="`dirname $0`"/../config/
     CP="$CP":$( echo `dirname $0`/../lib/*.jar . | sed 's/ /:/g')
 esac
-#echo $CP
+echo $CP
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
