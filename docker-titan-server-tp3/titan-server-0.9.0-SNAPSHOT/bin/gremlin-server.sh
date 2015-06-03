@@ -1,15 +1,31 @@
 #!/bin/bash
-
+#
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
 case `uname` in
   CYGWIN*)
     CP="`dirname $0`"/../config/
     CP="$CP":$( echo `dirname $0`/../lib/*.jar . | sed 's/ /;/g')
-    CP="$CP":$( echo `dirname $0`/../ext/*.jar . | sed 's/ /;/g')
     ;;
   *)
     CP="`dirname $0`"/../config/
     CP="$CP":$( echo `dirname $0`/../lib/*.jar . | sed 's/ /:/g')
-    CP="$CP":$( echo `dirname $0`/../ext/*.jar . | sed 's/ /;/g')
 esac
 #echo $CP
 
@@ -20,12 +36,10 @@ while [ -h "$SOURCE" ]; do
   [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
 done
 DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
-CP=$CP:"$DIR/../conf/gremlin-server"
-CP=$CP:$(find -L $DIR/../ext/ -name "*.jar" | tr '\n' ':')
+CP=$CP:$( find -L "$DIR"/../ext -mindepth 1 -maxdepth 1 -type d | \
+          sort | sed 's/$/\/plugin\/*/' | tr '\n' ':' )
 
 export CLASSPATH="${CLASSPATH:-}:$CP"
-
-export TITAN_LOGDIR="$DIR/../log"
 
 # Find Java
 if [ "$JAVA_HOME" = "" ] ; then
@@ -36,18 +50,13 @@ fi
 
 # Set Java options
 if [ "$JAVA_OPTIONS" = "" ] ; then
-    JAVA_OPTIONS="-Xms32m -Xmx512m -javaagent:$DIR/../lib/jamm-0.2.5.jar"
+    JAVA_OPTIONS="-Xms32m -Xmx512m"
 fi
 
 # Execute the application and return its exit code
-set -x
 if [ "$1" = "-i" ]; then
   shift
-  exec $JAVA -Dtitan.logdir="$TITAN_LOGDIR" -Dlog4j.configuration=conf/gremlin-server/log4j-server.properties $JAVA_OPTIONS -cp $CP:$CLASSPATH org.apache.tinkerpop.gremlin.server.util.GremlinServerInstall "$@"
+  exec $JAVA -Dlog4j.configuration=conf/log4j-server.properties $JAVA_OPTIONS -cp $CP:$CLASSPATH org.apache.tinkerpop.gremlin.server.util.GremlinServerInstall "$@"
 else
-  ARGS="$@"
-  if [ $# = 0 ] ; then
-    ARGS="conf/gremlin-server/gremlin-server.yaml"
-  fi
-  exec $JAVA -Dtitan.logdir="$TITAN_LOGDIR" -Dlog4j.configuration=conf/gremlin-server/log4j-server.properties $JAVA_OPTIONS -cp $CP:$CLASSPATH org.apache.tinkerpop.gremlin.server.GremlinServer $ARGS
+  exec $JAVA -Dlog4j.configuration=conf/log4j-server.properties $JAVA_OPTIONS -cp $CP:$CLASSPATH org.apache.tinkerpop.gremlin.server.GremlinServer "$@"
 fi
