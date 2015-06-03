@@ -27,7 +27,7 @@ case `uname` in
     CP="`dirname $0`"/../config/
     CP="$CP":$( echo `dirname $0`/../lib/*.jar . | sed 's/ /:/g')
 esac
-echo $CP
+#echo $CP
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
@@ -39,6 +39,7 @@ DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 CP=$CP:$( find -L "$DIR"/../ext -mindepth 1 -maxdepth 1 -type d | \
           sort | sed 's/$/\/plugin\/*/' | tr '\n' ':' )
 
+echo $CP
 export CLASSPATH="${CLASSPATH:-}:$CP"
 
 # Find Java
